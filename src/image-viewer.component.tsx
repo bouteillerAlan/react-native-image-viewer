@@ -3,17 +3,13 @@ import * as React from 'react';
 import {
   Animated,
   CameraRoll,
-  Dimensions,
   I18nManager,
   Image,
-  PanResponder,
-  Platform,
   Text,
   TouchableHighlight,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View,
-  ViewStyle
+  View
 } from 'react-native';
 import ImageZoom from 'react-native-image-pan-zoom';
 import styles from './image-viewer.style';
@@ -87,7 +83,7 @@ export default class ImageViewer extends React.Component<Props, State> {
 
     // 给 imageSizes 塞入空数组
     const imageSizes: IImageSize[] = [];
-    nextProps.imageUrls.forEach(imageUrl => {
+    nextProps.imageUrls.forEach((imageUrl) => {
       imageSizes.push({
         width: imageUrl.width || 0,
         height: imageUrl.height || 0,
@@ -538,7 +534,7 @@ export default class ImageViewer extends React.Component<Props, State> {
           return (
             <ImageZoom
               key={index}
-              ref={el => (this.imageRefs[index] = el)}
+              ref={(el) => (this.imageRefs[index] = el)}
               cropWidth={this.width}
               cropHeight={this.height}
               maxOverflow={this.props.maxOverflow}

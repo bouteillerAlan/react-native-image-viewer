@@ -190,28 +190,44 @@ export default class ImageViewer extends React.Component<Props, State> {
       return;
     }
 
-    Image.getSize(
-      image.url,
-      (width: number, height: number) => {
-        imageStatus.width = width;
-        imageStatus.height = height;
-        imageStatus.status = 'success';
-        saveImageSize();
-      },
-      () => {
-        try {
-          const data = (Image as any).resolveAssetSource(image.props.source);
-          imageStatus.width = data.width;
-          imageStatus.height = data.height;
+    // Add ability to get size of images protected with headers
+    if (image.props.source.headers) {
+      Image.getSizeWithHeaders(
+        image.url,
+        image.props.source.headers,
+        (width, height) => {
+          imageStatus.width = width;
+          imageStatus.height = height;
           imageStatus.status = 'success';
           saveImageSize();
-        } catch (newError) {
-          // Give up..
+        },
+        () => {
           imageStatus.status = 'fail';
           saveImageSize();
         }
-      }
-    );
+      );
+    } else {
+      Image.getSize(
+        image.url,
+        (width: number, height: number) => {
+          imageStatus.width = width;
+          imageStatus.height = height;
+          imageStatus.status = 'success';
+          saveImageSize();
+        },
+        () => {
+          try {
+            const data = (Image as any).resolveAssetSource(image.props.source);
+            imageStatus.width = data.width;
+            imageStatus.height = data.height;
+          } catch (newError) {
+            // Give up..
+            imageStatus.status = 'fail';
+            saveImageSize();
+          }
+        }
+      );
+    }
   }
 
   /**
@@ -532,32 +548,36 @@ export default class ImageViewer extends React.Component<Props, State> {
             this.preloadImage(this.state.currentShowIndex || 0);
           }
           return (
-            <ImageZoom
-              key={index}
-              ref={(el) => (this.imageRefs[index] = el)}
-              cropWidth={this.width}
-              cropHeight={this.height}
-              maxOverflow={this.props.maxOverflow}
-              horizontalOuterRangeOffset={this.handleHorizontalOuterRangeOffset}
-              responderRelease={this.handleResponderRelease}
-              onMove={this.props.onMove}
-              onLongPress={this.handleLongPressWithIndex.get(index)}
-              onClick={this.handleClick}
-              onDoubleClick={this.handleDoubleClick}
-              imageWidth={width}
-              imageHeight={height}
-              enableSwipeDown={this.props.enableSwipeDown}
-              swipeDownThreshold={this.props.swipeDownThreshold}
-              onSwipeDown={this.handleSwipeDown}
-              panToMove={!this.state.isShowMenu}
-              pinchToZoom={this.props.enableImageZoom && !this.state.isShowMenu}
-              enableDoubleClickZoom={this.props.enableImageZoom && !this.state.isShowMenu}
-              doubleClickInterval={this.props.doubleClickInterval}
-              minScale={this.props.minScale}
-              maxScale={this.props.maxScale}
-            >
-              {this!.props!.renderImage!(image.props)}
-            </ImageZoom>
+            <>
+              {/*
+              // @ts-ignore */}
+              <ImageZoom
+                key={index}
+                ref={(el) => (this.imageRefs[index] = el)}
+                cropWidth={this.width}
+                cropHeight={this.height}
+                maxOverflow={this.props.maxOverflow}
+                horizontalOuterRangeOffset={this.handleHorizontalOuterRangeOffset}
+                responderRelease={this.handleResponderRelease}
+                onMove={this.props.onMove}
+                onLongPress={this.handleLongPressWithIndex.get(index)}
+                onClick={this.handleClick}
+                onDoubleClick={this.handleDoubleClick}
+                imageWidth={width}
+                imageHeight={height}
+                enableSwipeDown={this.props.enableSwipeDown}
+                swipeDownThreshold={this.props.swipeDownThreshold}
+                onSwipeDown={this.handleSwipeDown}
+                panToMove={!this.state.isShowMenu}
+                pinchToZoom={this.props.enableImageZoom && !this.state.isShowMenu}
+                enableDoubleClickZoom={this.props.enableImageZoom && !this.state.isShowMenu}
+                doubleClickInterval={this.props.doubleClickInterval}
+                minScale={this.props.minScale}
+                maxScale={this.props.maxScale}
+              >
+                {this!.props!.renderImage!(image.props)}
+              </ImageZoom>
+            </>
           );
         case 'fail':
           return (
